@@ -1,0 +1,47 @@
+worker_processes  1;        #nginx worker 数量
+error_log logs/error.log;   #指定错误日志文件路径
+events {
+    worker_connections 1024;
+}
+
+http {
+	server {
+		listen 80;
+		lua_need_request_body on;
+		server_name localhost;
+#		location = / {
+#			default_type text/html;
+#			content_by_lua_block {
+#                return ngx.redirect('/test3')
+#			}
+#		}
+
+		location /auth {
+		    rewrite ^/member/(.*) /$1 break;
+		    proxy_pass http://nodejs:9000;
+		}
+
+		location /member {
+		    auth_request /auth;
+		    auth_request_set $token $arg_token;
+
+		    rewrite ^/member/(.*) /$1 break;
+
+		    content_by_lua_block {
+ngx.say(
+# ngx.exec(ngx.var.uri)
+		    }
+		}
+		location /inquire1 {
+	            internal;
+		    proxy_pass http://nodedata:9000;
+		}
+
+		location /inquire2 {
+	                internal;
+			proxy_pass http://nodedata2:9000;
+		}
+
+	}
+
+}

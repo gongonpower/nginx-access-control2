@@ -1,0 +1,46 @@
+worker_processes  1;        #nginx worker 数量
+error_log logs/error.log;   #指定错误日志文件路径
+events {
+    worker_connections 1024;
+}
+
+http {
+	server {
+		listen 80;
+		server_name localhost;
+		location / {
+			default_type text/html;
+			content_by_lua_block {
+				ngx.say("Hello world 2")
+			}
+		}
+		location = /test2 {
+			default_type text/html;
+			content_by_lua_block {
+				local argsb = ngx.req.get_uri_args()
+				local args = ngx.var.a
+				ngx.say(argsb)
+			}
+		}
+		location = /sum {
+			content_by_lua_block {
+				ngx.say("Hello world 3")
+				#local args = ngx.req.get_uri_args()
+			#	ngs.say(tonumber(args.a) + tonumber(args.b))
+				#ngx.say(args.a)
+			}
+
+		}
+		location = /app/test {
+			content_by_lua_block {
+				local res = ngx.location.capture(
+					"/sum", {args={a=3, b=8}}
+				)
+				ngx.say("status:", res.status, " response:", res.body)
+			}
+		}
+
+
+
+	}
+}

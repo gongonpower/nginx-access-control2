@@ -1,0 +1,1 @@
+docker run --rm -d -p 80:80 --network mynet --name openresty -v ~/openresty/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf -v ~/openresty/html:/usr/local/openresty/nginx/html openresty/openresty:centos
